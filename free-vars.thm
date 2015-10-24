@@ -1,0 +1,84 @@
+Specification "free-vars".
+
+Define frees : lst -> prop by
+  frees emty;
+  nabla (x:tm), frees (Cons x Y) := frees Y.
+
+Define binds : olist -> prop by
+  binds nil;
+  binds (bind X::L) := binds L.
+
+Theorem member_of_binds:
+  forall C F,
+  binds C
+  -> member F C
+  -> exists X, F = bind X.
+induction on 1. intros.case H1.
+
+  case H2.
+
+  case H2. search. apply IH to H3 H4. search.
+
+Theorem mem_over_app:
+  forall C L1 L2 L3 X,
+  binds C 
+  -> {C |- app L1 L2 L3}
+  -> {C |- mem X L3}
+  -> {C |- mem X L1} \/ {C |- mem X L2}.
+induction on 3. intros. case H3.
+
+  case H2. search. search.
+
+  apply member_of_binds to H1 H5. case H4. case H2. search. apply IH to H1 H5 H4. 
+  case H6. search. search. apply member_of_binds to H1 H6. case H5.
+
+  apply member_of_binds to H1 H5. case H4.
+
+Theorem all_fvs_in_tm_are_free:
+  forall L C F L' X,
+  frees L
+  -> binds C
+  -> { C |- fv_tm F L L'}
+  -> { C |- mem X L'}
+  -> {free_in_tm X F}.
+induction on 3. intros. case H3.
+
+  case H4. apply member_of_binds to H2 H6. case H5.
+
+  apply IH to H1 H2 H5 H4. search.
+
+  case H4. apply member_of_binds to H2 H7. case H6.
+
+  case H4. search. case H6. apply member_of_binds to H2 H8. case H7. 
+  apply member_of_binds to H2 H7. case H6.
+
+  apply member_of_binds to H2 H6. case H5.
+
+Theorem all_fvs_fm_are_free:
+  forall L C F L' X,
+  frees L
+  -> binds C
+  -> { C |- fv_fm F L L'}
+  -> { C |- mem X L'}
+  -> {free_in_fm X F}.
+induction on 3. intros. case H3.
+
+  apply mem_over_app to H2 H7 H4. case H8. apply IH to H1 H2 H5 H9. search.
+  apply IH to H1 H2 H6 H9. search.
+
+  apply IH to H1 _ H5 H4. search.
+
+  apply mem_over_app to H2 H7 H4. case H8.  
+  apply all_fvs_in_tm_are_free to H1 H2 H5 H9. search. 
+  apply all_fvs_in_tm_are_free to H1 H2 H6 H9. search.
+
+  apply mem_over_app to H2 H7 H4. case H8.  
+  apply all_fvs_in_tm_are_free to H1 H2 H5 H9. search. 
+  apply all_fvs_in_tm_are_free to H1 H2 H6 H9. search.
+
+  apply member_of_binds to H2 H6. case H5.
+   
+  
+  
+
+
